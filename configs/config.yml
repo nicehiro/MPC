@@ -1,0 +1,48 @@
+# MPC controller configuration
+mpc_config:
+    sampler: "Random"             # Random or CEM, # random may need to fix bugs
+    timesteps: 15
+    sample_times: 50
+    gamma: 0.99
+    max_iters: 20
+    num_elites: 50
+    epsilon: 0.2
+    alpha: 0.01
+    init_mean: 0
+    init_var: 10
+    particle: 1
+
+
+NN_config:
+    model_config:
+        load_model: True       # If set true, you must specify the model path, otherwise train a new model
+        model_path: "storage/dynamic.pkl" # the path to load the model
+        hidden_sizes: [256, 256, 256]         # hidden layer sizes
+        activation: "Tanh"
+
+    training_config:
+        n_epochs: 600            # how many epoches to train the dynamic model
+        learning_rate: 0.0005     # learning rate
+        batch_size: 512
+        save_model_flag: False
+        save_model_path: "storage/dynamic.pkl" # the path to save the model
+        validation_flag: True
+        validation_freq: 50      # the frequency of validation
+        validation_ratio: 0.2    # ratio of validation set
+
+reward_config:
+    model_config:
+        activation: "Tanh"
+        load_model: True       # If set true, you must specify the model path, otherwise train a new model
+        model_path: "storage/reward.pkl" # the path to load the model
+        hidden_sizes: [256, 256, 256]         # hidden layer sizes
+
+    training_config:
+        n_epochs: 600            # how many epoches to train the dynamic model
+        learning_rate: 0.0005     # learning rate
+        batch_size: 512
+        save_model_flag: False
+        save_model_path: "storage/reward.pkl" # the path to save the model
+        validation_flag: True
+        validation_freq: 50      # the frequency of validation
+        validation_ratio: 0.2    # ratio of validation set

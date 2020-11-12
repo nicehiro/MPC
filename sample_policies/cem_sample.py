@@ -7,12 +7,13 @@ import numpy as np
 
 
 class CEMSample(Sample):
-
-    def __init__(self, upper_bound, lower_bound, action_dim):
+    def __init__(self, upper_bound, lower_bound, action_dim, is_discrete=False):
         self.sampler = self.__truncated_normal
         self.upper_bound = torch.tensor(upper_bound)
         self.lower_bound = torch.tensor(lower_bound)
+        self.is_discrete = is_discrete
         self.action_dim = action_dim
+        self.sampler = self.__truncated_normal
 
     def __truncated_normal(self, shape, mu, sigma, a, b):
         """
@@ -39,14 +40,16 @@ class CEMSample(Sample):
         one = np.array(1, dtype=p.dtype)
         epsilon = np.array(np.finfo(p.dtype).eps, dtype=p.dtype)
         v = np.clip(2 * p - 1, epsilon - 1, 1 + epsilon)
-        x = mu + sigma * np.sqrt(2) * torch.erfinv(torch.from_numpy(v))
-        x = torch.clamp(x, a[0], b[0])
+        x = mu + sigma * np.sqrt(2) * torch.erfinv(torch.from_numpy(v)).numpy()
+        x = torch.clamp(torch.tensor(x), a[0], b[0])
         return x
 
     def sample(self, timesteps, mu, sigma, a, b):
-        shape = (timesteps, self.action_dim)
+        shape = timesteps
         return self.sampler(shape, mu, sigma, a, b)
 
     def sample_n(self, sample_nums, timesteps, **kwargs):
         shape = (sample_nums, timesteps, self.action_dim)
-        return self.sampler(shape, kwargs['mu'], kwargs['sigma'], kwargs['a'], kwargs['b'])
+        return self.sampler(
+            shape, kwargs["mu"], kwargs["sigma"], self.lower_bound, self.upper_bound
+        )

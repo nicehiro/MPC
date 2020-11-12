@@ -15,8 +15,8 @@ mpc_config:
 
 NN_config:
     model_config:
-        load_model: True       # If set true, you must specify the model path, otherwise train a new model
-        model_path: "storage/dynamic.pkl" # the path to load the model
+        load_model: False       # If set true, you must specify the model path, otherwise train a new model
+        model_path: "storage/cem_dynamic.pkl" # the path to load the model
         hidden_sizes: [256, 256, 256]         # hidden layer sizes
         activation: "Tanh"
 
@@ -25,7 +25,7 @@ NN_config:
         learning_rate: 0.0005     # learning rate
         batch_size: 512
         save_model_flag: False
-        save_model_path: "storage/dynamic.pkl" # the path to save the model
+        save_model_path: "storage/cem_dynamic.pkl" # the path to save the model
         validation_flag: True
         validation_freq: 50      # the frequency of validation
         validation_ratio: 0.2    # ratio of validation set
@@ -33,8 +33,8 @@ NN_config:
 reward_config:
     model_config:
         activation: "Tanh"
-        load_model: True       # If set true, you must specify the model path, otherwise train a new model
-        model_path: "storage/reward.pkl" # the path to load the model
+        load_model: False       # If set true, you must specify the model path, otherwise train a new model
+        model_path: "storage/cem_reward.pkl" # the path to load the model
         hidden_sizes: [256, 256, 256]         # hidden layer sizes
 
     training_config:
@@ -42,7 +42,7 @@ reward_config:
         learning_rate: 0.0005     # learning rate
         batch_size: 512
         save_model_flag: False
-        save_model_path: "storage/reward.pkl" # the path to save the model
+        save_model_path: "storage/cem_reward.pkl" # the path to save the model
         validation_flag: True
         validation_freq: 50      # the frequency of validation
         validation_ratio: 0.2    # ratio of validation set

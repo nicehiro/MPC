@@ -1,11 +1,11 @@
 # MPC controller configuration
 mpc_config:
-    sampler: "Random"             # Random or CEM, # random may need to fix bugs
+    sampler: "CEM"             # Random or CEM, # random may need to fix bugs
     timesteps: 15
-    sample_times: 50
-    gamma: 0.99
+    sample_times: 1000
+    gamma: 0.95
     max_iters: 20
-    num_elites: 50
+    num_elites: 100
     epsilon: 0.2
     alpha: 0.01
     init_mean: 0

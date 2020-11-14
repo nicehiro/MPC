@@ -8,6 +8,7 @@ from gym.spaces.discrete import Discrete
 from algos.mpc import MPC
 from models.dynamic_model import DynamicModel
 from models.reward_model import RewardModel
+from envs.cartpole_continuous import ContinuousCartPoleEnv
 
 
 def load_config(path):
@@ -22,7 +23,8 @@ if __name__ == "__main__":
 
     config = load_config("./configs/train.yml")
     # env = gym.make("MountainCarContinuous-v0")
-    env = gym.make("CartPole-v1")
+    # env = gym.make("CartPole-v1")
+    env = ContinuousCartPoleEnv()
 
     state_dim = env.observation_space.shape[0]
     if type(env.action_space) is Discrete:
@@ -88,8 +90,8 @@ if __name__ == "__main__":
         for epo in range(test_epochs):
             o = env.reset()
             d = False
-            t = 0
             while not d:
+                mpc.reset()
                 env.render()
                 a = mpc.act(o)
                 if is_discrete:
@@ -98,11 +100,9 @@ if __name__ == "__main__":
                 o_, r, d, _ = env.step(a)
                 dynamic.add_dataset([0, o, a, o_ - o])
                 reward_model.add_dataset([0, o, a, [r]])
-                o = o
-                if t > 100:
-                    break
-            env.close()
-            logging.info("Episode done!")
+                o = o_
+            # env.close()
+            logging.info("\nEpisode done!\n")
 
         if not nn_config["model_config"]["load_model"]:
             logging.info("Fitting Dynamic model.")

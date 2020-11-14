@@ -5,10 +5,14 @@ from sample_policies.sample import Sample
 from torch.distributions.normal import Normal
 import numpy as np
 
+import scipy.stats as stats
+
 
 class CEMSample(Sample):
     def __init__(self, upper_bound, lower_bound, action_dim, is_discrete=False):
-        self.sampler = self.__truncated_normal
+        """
+        Cross Entropy Method to sample actions.
+        """
         self.upper_bound = torch.tensor(upper_bound)
         self.lower_bound = torch.tensor(lower_bound)
         self.is_discrete = is_discrete
@@ -17,7 +21,7 @@ class CEMSample(Sample):
 
     def __truncated_normal(self, shape, mu, sigma, a, b):
         """
-        Truncated normal distribution sample method.
+        Truncated normal distribution cross entropy sample method.
         Use inverse transform sampling.
 
         @param shape: dim of output
@@ -39,9 +43,10 @@ class CEMSample(Sample):
         p = p.numpy()
         one = np.array(1, dtype=p.dtype)
         epsilon = np.array(np.finfo(p.dtype).eps, dtype=p.dtype)
-        v = np.clip(2 * p - 1, epsilon - 1, 1 + epsilon)
+        v = np.clip(2 * p - 1, epsilon - one, one - epsilon)
         x = mu + sigma * np.sqrt(2) * torch.erfinv(torch.from_numpy(v)).numpy()
-        x = torch.clamp(torch.tensor(x), a[0], b[0])
+        x = np.clip(x, a[0].numpy(), b[0].numpy())
+        # x = torch.clamp(torch.tensor(x), a, b)
         return x
 
     def sample(self, timesteps, mu, sigma, a, b):
@@ -53,3 +58,22 @@ class CEMSample(Sample):
         return self.sampler(
             shape, kwargs["mu"], kwargs["sigma"], self.lower_bound, self.upper_bound
         )
+        # return self.__truncated_normal_scipy(
+        #     sample_nums, timesteps, kwargs["mu"], kwargs["sigma"]
+        # )
+
+    def __truncated_normal_scipy(self, sample_nums, timesteps, mean, sigma):
+        """
+        Scipy truncated normal method.
+        """
+        shape = (sample_nums, timesteps, self.action_dim)
+        lb_dist, ub_dist = (
+            mean - self.lower_bound.numpy(),
+            self.upper_bound.numpy() - mean,
+        )
+        constrained_var = np.minimum(
+            np.minimum(np.square(lb_dist / 2), np.square(ub_dist / 2)), sigma
+        )
+        X = stats.truncnorm(-2, 2, loc=np.zeros_like(mean), scale=np.ones_like(mean))
+        samples = X.rvs(size=shape) * np.sqrt(constrained_var) + mean
+        return samples.astype(np.float32)

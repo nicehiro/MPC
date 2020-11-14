@@ -1,4 +1,9 @@
 .idea/
+.venv/
 venv/
 **/__pycache__
 storage/
+.vscode/
+*.ipynb
+nohup.out
+.ipynb_checkpoints

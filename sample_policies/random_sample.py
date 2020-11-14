@@ -5,8 +5,10 @@ from torch.distributions.uniform import Uniform
 
 
 class RandomSample(Sample):
-
     def __init__(self, upper_bound, lower_bound, action_dim, is_discrete=False):
+        """
+        Random sample actions.
+        """
         self.upper_bound = torch.tensor(upper_bound)
         self.lower_bound = torch.tensor(lower_bound)
         self.action_dim = action_dim
@@ -22,13 +24,16 @@ class RandomSample(Sample):
         return actions
 
     def sample_n(self, sample_nums, timesteps, **kwargs):
-        shape = (sample_nums, timesteps, 1) if self.is_discrete else (sample_nums, timesteps)
+        shape = (
+            (sample_nums, timesteps, self.action_dim)
+            if self.is_discrete
+            else (sample_nums, timesteps)
+        )
         actions = self.sampler.sample(shape).cpu().numpy()
         return actions
 
 
 class RandIntSampler:
-
     def __init__(self, low, high):
         self.low = low
         self.high = high
